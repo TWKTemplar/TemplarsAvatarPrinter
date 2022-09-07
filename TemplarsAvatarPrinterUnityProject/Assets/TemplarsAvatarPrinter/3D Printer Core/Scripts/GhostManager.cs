@@ -71,8 +71,8 @@ public class GhostManager : MonoBehaviour
             if(ghostMirror.gameObject.activeInHierarchy) PrintItems.Add(ghostMirror);
         }
     }
-    [ContextMenu("MergeByDistance")]
-    public void MergeByDistance()
+    [ContextMenu("CalculatePrinterCommands")]
+    public void CalculatePrinterCommands()
     {
         printerCommands.Clear();
         //Initalize Tuple, used to reduce the number of unneeded points while printing
@@ -143,7 +143,7 @@ public class GhostManager : MonoBehaviour
             {
                 Debug.Log("Child mesh renderer array length changed to: " + itemLength);
                 SetUpPrintObjects();
-                MergeByDistance();
+                CalculatePrinterCommands();
             }
         }
         #endregion

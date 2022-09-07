@@ -45,7 +45,7 @@ public class PrinterMem : MonoBehaviour
     
     public void ConvertFromGhostsToPrinterCommandList()
     {
-        ghostManager.MergeByDistance();
+        ghostManager.CalculatePrinterCommands();
         XYZList = ghostManager.printerCommands.ToList();
         XYZListCount = XYZList.Count;
         if(XYZListCount == 0)
