@@ -4,6 +4,7 @@
     {
         _MainTex("Texture", 2D) = "white" {}
         _ColorIntensity("Intensity", Range(0,10)) = 4
+        _Cutoff("Cutoff", Range(0,1)) = 0.5
         _ColorLerp("Color Lerp", Range(0,1)) = 0.5
         _ParticleSize("ParticleSize", Range(0,1)) = 0.05//Number that will be subtracted from xyz of TEXCOORD1(Particle size)
 
@@ -47,6 +48,7 @@
             sampler2D _MainTex;
             float4 _MainTex_ST;
             float _ColorLerp;
+            float _Cutoff;
             float _ColorIntensity;
             float _ParticleSize;
             v2f vert(appdata v)
@@ -72,6 +74,7 @@
             fixed4 frag(v2f i) : SV_Target
             {
                 float4 hue = tex2D(_MainTex, i.uv);
+                clip(hue.a - _Cutoff);
                 hue.rgb *= hsv2rgb(i.VertexColor);// * pow(col.a,5)
                 hue.rgb *= _ColorIntensity ;
                 hue.rgb = lerp(hue.rgba,tex2D(_MainTex, i.uv).rgba, _ColorLerp);

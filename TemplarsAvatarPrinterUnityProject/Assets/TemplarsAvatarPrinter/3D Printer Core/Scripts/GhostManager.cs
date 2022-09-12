@@ -25,6 +25,8 @@ public class GhostManager : MonoBehaviour
     [Tooltip("Less resolution => Larger merge by distance range")][Range(10,60)]public int Resolution = 30;//The higher this number the closer points would be allowed to not be merged into 1 point
     [Tooltip("Verts gathered in active gameobjects")][ReadOnlyInspector] public int TotalVertsInMeshArray;
     [Tooltip("Remaining verts after Decimation and Resolution")][ReadOnlyInspector] public int TotalVertsInMeshArrayFinal;
+    public bool SkipBlackVertexColors = false;
+
     [Header("Options (Unity preview focused)")]
     public Color GhostColor;
     public Color SelectedColor;
@@ -35,14 +37,13 @@ public class GhostManager : MonoBehaviour
     [ReadOnlyInspector] public List<PrinterMem.PrinterCommand> printerCommands = new List<PrinterMem.PrinterCommand>();//Is this is a dynamicly updating list of all verts's color, position and ID
     [Header("Required Ref")]
     public PrinterMem printerMem;
-
-    public void Start()
-    {
+    public void Awake()
+    {   
         //Hide Mesh Renderers on start
         foreach (var item in PrintItems)
         {
-           var meshrend = item.meshFilter.GetComponent<MeshRenderer>();
-           if (meshrend != null) meshrend.enabled = false;
+            var meshrend = item.meshFilter.GetComponent<MeshRenderer>();
+            if (meshrend != null) meshrend.enabled = false;
         }
     }
     public void SetUpPrintObjects()
@@ -56,10 +57,7 @@ public class GhostManager : MonoBehaviour
             ghostMirror = meshFilter.GetComponent<GhostMirror>();
             if (ghostMirror == null)
             {
-                Collider col = meshFilter.GetComponent<Collider>();
-                if (col != null) DestroyImmediate(col);
-                ghostMirror = meshFilter.GetComponent<GhostMirror>();
-                if(ghostMirror == null) ghostMirror = meshFilter.gameObject.AddComponent<GhostMirror>();
+                ghostMirror = meshFilter.gameObject.AddComponent<GhostMirror>();
                 ghostMirror.meshFilter = meshFilter;
                 ghostMirror.mesh = meshFilter.sharedMesh;
             }
@@ -69,6 +67,15 @@ public class GhostManager : MonoBehaviour
             }
 
             if(ghostMirror.gameObject.activeInHierarchy) PrintItems.Add(ghostMirror);
+        }
+        RecacheMeshFilters();
+    }
+    public void RecacheMeshFilters()
+    {
+        GhostMirror[] ghostMirrorArray = transform.GetComponentsInChildren<GhostMirror>();
+        foreach (GhostMirror ghostMirror in ghostMirrorArray)
+        {
+            ghostMirror.mesh = ghostMirror.meshFilter.sharedMesh;
         }
     }
     [ContextMenu("CalculatePrinterCommands")]
@@ -86,6 +93,20 @@ public class GhostManager : MonoBehaviour
                 //Decimation calculation
                 bool ran1 = UnityEngine.Random.value > Decimation * printItem.LocalDecimation;
                 if (ran1) continue;
+
+                if (SkipBlackVertexColors)
+                {
+                    // vertexColor
+                    var vertexColorTemp = printItem.mesh.colors[i];
+                    Vector3 vertexColorTemp2 = Vector3.one;
+                    Color.RGBToHSV(vertexColorTemp, out vertexColorTemp2.x, out vertexColorTemp2.y, out vertexColorTemp2.z);//HSV = xyz, h=x, s=y, v=z
+                    if(vertexColorTemp2.z < 0.5f)//Value is lower than 0.5f
+                    {
+                        continue;
+                    }
+
+                }
+
 
                 //Merge by distance calculation
                 Vector3 tuppos = PrinterUtils.LocalToWorldPos(point, printItem.transform);
@@ -143,7 +164,6 @@ public class GhostManager : MonoBehaviour
             {
                 Debug.Log("Child mesh renderer array length changed to: " + itemLength);
                 SetUpPrintObjects();
-                CalculatePrinterCommands();
             }
         }
         #endregion

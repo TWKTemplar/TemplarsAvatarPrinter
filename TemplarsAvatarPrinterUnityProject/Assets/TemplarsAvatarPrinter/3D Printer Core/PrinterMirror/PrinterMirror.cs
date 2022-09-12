@@ -56,6 +56,20 @@ public class PrinterMirror : MonoBehaviour
         EmitNextFrame = true;
 
     }
+    public void ClearMirroredPoints()
+    {
+        if (debugPointType == DebugPointType.Particle)
+        {
+            MirrorParticleSystem.Clear();
+        }
+        if (debugPointType == DebugPointType.GameObject)
+        {
+            foreach (Transform child in MirrorObjectStorage.transform)
+            {
+                Destroy(child.gameObject);
+            }
+        }
+    }
     public void Update()
     {
         if(EmitNextFrame == true)

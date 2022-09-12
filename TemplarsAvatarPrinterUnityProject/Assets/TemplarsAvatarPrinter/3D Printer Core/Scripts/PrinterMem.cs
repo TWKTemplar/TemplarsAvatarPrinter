@@ -12,16 +12,24 @@ public class PrinterMem : MonoBehaviour
     [Header("Required Ref")]
     public GhostManager ghostManager;
     public PrinterCPU printerCPU;
+    public PrintSequenceManager printSequenceManager;
     [Header("Data")]
     [Tooltip("The current vertex we will be printing")] [ReadOnlyInspector] public int SelectedSlot;
     [Tooltip("The total list of XYZ commands we have")] [ReadOnlyInspector] public int XYZListCount;
     [ReadOnlyInspector] public List<PrinterCommand> XYZList;
 
-    public void Awake()//This is where the printer starts
+    public void Start()//This is where the printer starts
     {
-        ConvertFromGhostsToPrinterCommandList();
-        Debug.Log("Logged Printer Mem into printerMem");
-        printerCPU.StartPrint();
+        if(ConvertFromGhostsToPrinterCommandList() == true)
+        {
+            Debug.Log("Logged Printer Mem into printerMem");
+            printerCPU.StartPrint();
+        }
+        else
+        {
+            printSequenceManager.StartNext3DPrint();
+        }
+
     }
     public struct PrinterCommand
     {
@@ -43,14 +51,16 @@ public class PrinterMem : MonoBehaviour
     }
     
     
-    public void ConvertFromGhostsToPrinterCommandList()
+    public bool ConvertFromGhostsToPrinterCommandList()
     {
+        SelectedSlot = 0;
         ghostManager.CalculatePrinterCommands();
         XYZList = ghostManager.printerCommands.ToList();
         XYZListCount = XYZList.Count;
         if(XYZListCount == 0)
         {
-            Debug.LogError("There are no verticies logged in the Print items List");
+            Debug.LogWarning("There are no verticies logged in the current print item");
+            return false;//Nothing to organize
         }
         if (orderType == OrderType.BottomToTop)
         {
@@ -64,5 +74,6 @@ public class PrinterMem : MonoBehaviour
         {
             XYZList.Shuffle();
         }
+        return true;//was able to organize
     }
 }

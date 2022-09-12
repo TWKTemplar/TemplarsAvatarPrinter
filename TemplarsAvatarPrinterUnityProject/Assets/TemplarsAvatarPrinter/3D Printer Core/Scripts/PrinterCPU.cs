@@ -7,7 +7,12 @@ public class PrinterCPU : MonoBehaviour
     public enum XYZSyncSpeed { FastestSpeedForUnity, FastSpeedForVRChatClientSide, NormalSpeedForVRChatMultiplayer, }
     [Header("Options (Debug focused)")]
     [Tooltip("After each vertex will the program automatically place the next")] public bool AutoLoop = true;
-    public bool EndProgramOnFinishedPrint = true;
+    public enum OnPrintEnd { SinglePrint, MultiplePrints}
+    [SerializeField] public OnPrintEnd NumberOfPrints;
+    public enum Timelaps {NoScreenCapture, ScreenCaptureAtEndOfEveryPrint, ScreenCaptureEveryNPoints}
+    [SerializeField] public Timelaps TimelapSettings;
+    [SerializeField][Range(50,200)] public int PointsTillScreenshot = 100;
+
     [SerializeField] public XYZSyncSpeed XYZSyncSpeedSetting;
     [Tooltip("0.1f is safe for multiplayer networking, if you only care about your vrchat client side's view 0.03f is safe")]
     [ReadOnlyInspector] public float TimeBetweenXYZSync = 0.1f;
@@ -16,8 +21,10 @@ public class PrinterCPU : MonoBehaviour
     [Tooltip("TimeBetweenXYZSync = (TimeBetweenXYZSync * 2) * (printerMem.XYZListCount - printerMem.SelectedSlot)")]
     [ReadOnlyInspector]public string TimeRemaining;//Calculated remaning time on a print process
     [Header("Required Ref")]
+    public ScreenshotManager screenshotManager;
     public PrinterMem printerMem;
     public OSCSender oSCSender;
+    public PrintSequenceManager printSequenceManager;
     [Header("Data")]
     [ReadOnlyInspector] [Tooltip("READ ONLY, What the OSC program's simulated Particle emmitor is set to.")] public bool ParticleEmmiterOn = true;//READ ONLY (Does not do anything)
     [ReadOnlyInspector] private float TimeRemainingFloat;
@@ -64,7 +71,7 @@ public class PrinterCPU : MonoBehaviour
 
 
         oSCSender.ParticleTriggerOff();//gets ready to place a new particle
-        oSCSender.SendXYZDataToVRC(printerMem.XYZList[printerMem.SelectedSlot]);//Move the nozzle, pass along PrinterColorMode
+        if(printerMem.XYZList.Count != 0) oSCSender.SendXYZDataToVRC(printerMem.XYZList[printerMem.SelectedSlot]);//Move the nozzle, pass along PrinterColorMode
         Invoke("PlaceParticle", TimeBetweenXYZSync);
     }
     public void PlaceParticle()//place particle
@@ -87,16 +94,39 @@ public class PrinterCPU : MonoBehaviour
     }
     public void LoadNextParticle()
     {
+
+        if (TimelapSettings == Timelaps.ScreenCaptureEveryNPoints)
+        {
+            PointsTillScreenshot--;
+            if(PointsTillScreenshot <= 0)
+            {
+                PointsTillScreenshot = 100;
+                screenshotManager.TakeScreenShot();
+            }
+        }
         if (printerMem.RequestAndIncreaseNextSlot())//bool that returns false if we printed everything
         {
             printerState = PrinterState.idle;//allows for the next cycle to take place
         }
         else
         {
-            Debug.Log("Finished All Print Assets");
-            if (EndProgramOnFinishedPrint) oSCSender.ENDPROGRAM();
+            if (NumberOfPrints == OnPrintEnd.SinglePrint)
+            {
+                oSCSender.ENDPROGRAM();
+            }
+            if (NumberOfPrints == OnPrintEnd.MultiplePrints)
+            {
+                if (TimelapSettings != Timelaps.NoScreenCapture) screenshotManager.TakeScreenShot();
+                if(printSequenceManager.IsThereAnotherPrint() == true)
+                {
+                    printSequenceManager.StartNext3DPrint();
+                }
+                else
+                {
+                    oSCSender.ENDPROGRAM();
+                }
+            }
         }
-        
     }
     #endregion  
     public void CalculateXYZSpeed()
@@ -114,6 +144,11 @@ public class PrinterCPU : MonoBehaviour
     public void CalculateRemainingTime()
     {
         TimeRemainingFloat = (TimeBetweenXYZSync * 2) * (printerMem.XYZListCount - printerMem.SelectedSlot);
+
+        if(TimeBetweenXYZSync == 0)
+        {
+            TimeRemainingFloat = (0.01f * 2) * (printerMem.XYZListCount - printerMem.SelectedSlot);//This is so that there will be a timer even when TimeBetweenXYZSync = 0
+        }
         int minutes = (int)TimeRemainingFloat / 60;
         int seconds = (int)((TimeRemainingFloat) % 60);
         TimeRemaining = $"{minutes}:{seconds:00}" + " @ " + Mathf.RoundToInt(((float)printerMem.SelectedSlot / (float)printerMem.XYZListCount) * 100) + "%";
