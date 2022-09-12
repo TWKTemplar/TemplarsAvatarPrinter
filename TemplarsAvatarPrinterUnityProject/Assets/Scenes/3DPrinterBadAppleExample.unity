@@ -675,8 +675,8 @@ MonoBehaviour:
   NumberOfPrints: 1
   TimelapSettings: 0
   PointsTillScreenshot: 50
-  XYZSyncSpeedSetting: 0
-  TimeBetweenXYZSync: 0
+  XYZSyncSpeedSetting: 2
+  TimeBetweenXYZSync: 0.1
   TimeRemaining: 0:00 @ 100%
   screenshotManager: {fileID: 2119656932}
   printerMem: {fileID: 2119656926}
@@ -753,6 +753,7 @@ MonoBehaviour:
   printerMem: {fileID: 2119656926}
   printerMirror: {fileID: 2119656925}
   printerCPU: {fileID: 2119656927}
+  OSCSender: {fileID: 2119656928}
   CurrentMesh: 0
   MeshArray:
   - {fileID: 4300000, guid: a6a6fa468bf16d9499967e92aef43f02, type: 3}

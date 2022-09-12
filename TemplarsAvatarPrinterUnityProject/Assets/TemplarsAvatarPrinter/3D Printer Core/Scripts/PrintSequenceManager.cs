@@ -9,6 +9,7 @@ public class PrintSequenceManager : MonoBehaviour
     public PrinterMem printerMem;
     public PrinterMirror printerMirror;
     public PrinterCPU printerCPU;
+    public OSCSender OSCSender;
     [Help("PrintSequenceManager is only used when PrinterCPU.NumberOfPrints = MultiplePrints")]
     [Header("Data")]
     [ReadOnlyInspector]public int CurrentMesh;
@@ -21,6 +22,7 @@ public class PrintSequenceManager : MonoBehaviour
     }
     private void ClearPrint()
     {
+        OSCSender.ParticleBufferOff();
         printerMirror.ClearMirroredPoints();
     }
     public bool IsThereAnotherPrint()
@@ -49,7 +51,8 @@ public class PrintSequenceManager : MonoBehaviour
         }
         else
         {
-            SetPrinterToIdle();//allows for the next cycle to take place
+            OSCSender.ParticleBufferOn();
+            Invoke("SetPrinterToIdle", 0.25f);//allows for the next cycle to take place
         }
         
        
