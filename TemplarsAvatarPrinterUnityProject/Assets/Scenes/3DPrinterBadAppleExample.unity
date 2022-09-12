@@ -616,7 +616,7 @@ GameObject:
   - component: {fileID: 2119656931}
   - component: {fileID: 2119656932}
   m_Layer: 0
-  m_Name: TAP(TemplarAvatarPrinter) V6
+  m_Name: TAP(TemplarAvatarPrinter) V7
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

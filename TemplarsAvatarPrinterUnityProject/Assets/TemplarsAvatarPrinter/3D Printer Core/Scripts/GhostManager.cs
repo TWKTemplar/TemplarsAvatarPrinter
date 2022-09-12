@@ -25,7 +25,10 @@ public class GhostManager : MonoBehaviour
     [Tooltip("Less resolution => Larger merge by distance range")][Range(10,60)]public int Resolution = 30;//The higher this number the closer points would be allowed to not be merged into 1 point
     [Tooltip("Verts gathered in active gameobjects")][ReadOnlyInspector] public int TotalVertsInMeshArray;
     [Tooltip("Remaining verts after Decimation and Resolution")][ReadOnlyInspector] public int TotalVertsInMeshArrayFinal;
+    [Tooltip("Toggles the use of SkipBlackVertexColorsCutOff when calculating what verts to print")]
     public bool SkipBlackVertexColors = false;
+    [Tooltip("Any HSV colors with a value lower than SkipBlackVertexColorsCutOff will be omitted")]
+    [Range(0f, 1f)] public float SkipBlackVertexColorsCutOff = 0.1f;
 
     [Header("Options (Unity preview focused)")]
     public Color GhostColor;
@@ -100,7 +103,7 @@ public class GhostManager : MonoBehaviour
                     var vertexColorTemp = printItem.mesh.colors[i];
                     Vector3 vertexColorTemp2 = Vector3.one;
                     Color.RGBToHSV(vertexColorTemp, out vertexColorTemp2.x, out vertexColorTemp2.y, out vertexColorTemp2.z);//HSV = xyz, h=x, s=y, v=z
-                    if(vertexColorTemp2.z < 0.5f)//Value is lower than 0.5f
+                    if(vertexColorTemp2.z < 0.1f)//Value is lower than 0.5f
                     {
                         continue;
                     }
