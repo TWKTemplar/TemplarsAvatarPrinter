@@ -730,6 +730,7 @@ MonoBehaviour:
   TotalVertsInMeshArray: 1849
   TotalVertsInMeshArrayFinal: 0
   SkipBlackVertexColors: 1
+  SkipBlackVertexColorsCutOff: 0.1
   GhostColor: {r: 0.12549017, g: 0.90588236, b: 0.87164414, a: 0.03529412}
   SelectedColor: {r: 0.10734284, g: 1, b: 0, a: 1}
   OutOfBoundsColor: {r: 1, g: 0.18361838, b: 0, a: 0.84705883}

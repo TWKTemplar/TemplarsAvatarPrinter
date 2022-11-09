@@ -755,7 +755,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: adcc3a3b399ca3d489868597c7f2a56a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  orderType: 2
+  orderType: 1
   ghostManager: {fileID: 2119656930}
   printerCPU: {fileID: 2119656927}
   printSequenceManager: {fileID: 2119656931}
@@ -775,8 +775,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   AutoLoop: 1
   NumberOfPrints: 0
-  TimelapSettings: 0
-  PointsTillScreenshot: 100
+  TimelapSettings: 2
+  PointsTillScreenshot: 50
   XYZSyncSpeedSetting: 2
   TimeBetweenXYZSync: 0.1
   TimeRemaining: 0:00 @ 100%
@@ -828,10 +828,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Decimation: 1
-  Resolution: 30
+  Resolution: 31
   TotalVertsInMeshArray: 32521
   TotalVertsInMeshArrayFinal: 0
   SkipBlackVertexColors: 1
+  SkipBlackVertexColorsCutOff: 0.1
   GhostColor: {r: 0.12549017, g: 0.90588236, b: 0.87164414, a: 0.03529412}
   SelectedColor: {r: 0.10734284, g: 1, b: 0, a: 1}
   OutOfBoundsColor: {r: 1, g: 0.18361838, b: 0, a: 0.84705883}
