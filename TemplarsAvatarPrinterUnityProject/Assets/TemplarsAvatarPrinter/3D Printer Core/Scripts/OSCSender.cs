@@ -15,6 +15,7 @@ public class OSCSender : MonoBehaviour
     [Header("OSC Networking Setup")]
     public OscClient client;
     public OscServer server;
+    public bool SendDataToVRChat = true;
 
 
     void Start()
@@ -28,6 +29,7 @@ public class OSCSender : MonoBehaviour
     {
         if (printerMirror != null) printerMirror.XYZNuzzleMirror(pntCmd);
 
+        if (SendDataToVRChat == false) return;
         //Send HSV Data
         client.Send("/avatar/parameters/H", pntCmd.HSV.x);
         client.Send("/avatar/parameters/S", pntCmd.HSV.y);
@@ -46,28 +48,34 @@ public class OSCSender : MonoBehaviour
 
     public void ParticleTriggerOff()
     {
+        if (SendDataToVRChat == false) return;
         client.Send("/avatar/parameters/ParticleTrigger", false);
     }
     public void ParticleTriggerOn()
     {
         if(printerMirror != null) printerMirror.ParticleTriggerOn();
+        if (SendDataToVRChat == false) return;
         client.Send("/avatar/parameters/ParticleTrigger", true);
     }
     public void ParticleBufferOn()
     {
         if (printerMirror != null) printerMirror.ParticleTriggerOn();//Once a particle buffer is turned on they fire out a single particle
+        if (SendDataToVRChat == false) return;
         client.Send("/avatar/parameters/ParticleBuffer", true);
     }
     public void ParticleBufferOff()
     {
+        if (SendDataToVRChat == false) return;
         client.Send("/avatar/parameters/ParticleBuffer", false);
     }
     public void WorldConstraintOn()
     {
+        if (SendDataToVRChat == false) return;
         client.Send("/avatar/parameters/WorldConstraint", true);
     }
     public void WorldConstraintOff()
     {
+        if (SendDataToVRChat == false) return;
         client.Send("/avatar/parameters/WorldConstraint", false);
     }
     #endregion

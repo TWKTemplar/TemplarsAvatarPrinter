@@ -759,7 +759,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: adcc3a3b399ca3d489868597c7f2a56a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  orderType: 0
+  orderType: 1
   ghostManager: {fileID: 2119656930}
   printerCPU: {fileID: 2119656927}
   printSequenceManager: {fileID: 2119656931}
@@ -832,7 +832,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Decimation: 1
-  Resolution: 31
+  Resolution: 53
   TotalVertsInMeshArray: 32408
   TotalVertsInMeshArrayFinal: 0
   SkipBlackVertexColors: 0
