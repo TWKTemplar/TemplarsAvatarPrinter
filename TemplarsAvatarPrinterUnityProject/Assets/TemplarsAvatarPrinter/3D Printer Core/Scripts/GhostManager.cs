@@ -27,6 +27,8 @@ public class GhostManager : MonoBehaviour
     [Tooltip("Remaining verts after Decimation and Resolution")][ReadOnlyInspector] public int TotalVertsInMeshArrayFinal;
     [Tooltip("Toggles the use of SkipBlackVertexColorsCutOff when calculating what verts to print")]
     public bool SkipBlackVertexColors = false;
+    [Tooltip("Sets every vert to HSV = White when calculating what verts to print [Calculated after SkipBlackVertexColors]")]
+    public bool ClampAllColorsToWhite = false;
     [Tooltip("Any HSV colors with a value lower than SkipBlackVertexColorsCutOff will be omitted")]
     [Range(0f, 1f)] public float SkipBlackVertexColorsCutOff = 0.1f;
 
@@ -120,8 +122,14 @@ public class GhostManager : MonoBehaviour
                  // vertexColor
                  var vertexColor = printItem.mesh.colors[i];
                  Vector3 vertexColorHSV = Vector3.one;
-                 Color.RGBToHSV(vertexColor, out vertexColorHSV.x, out vertexColorHSV.y, out vertexColorHSV.z);//HSV = xyz, h=x, s=y, v=z
-                
+                if (!ClampAllColorsToWhite)//Setting that makes color data clamped to White
+                {
+                    Color.RGBToHSV(vertexColor, out vertexColorHSV.x, out vertexColorHSV.y, out vertexColorHSV.z);//HSV = xyz, h=x, s=y, v=z
+                }
+                else
+                {
+                    Color.RGBToHSV(Color.white, out vertexColorHSV.x, out vertexColorHSV.y, out vertexColorHSV.z);//HSV = xyz, h=x, s=y, v=z
+                }
                 // Add finalized printer command
                 printerCommands.Add(new PrinterMem.PrinterCommand(tuppos, printerCommands.Count, vertexColorHSV));
                 

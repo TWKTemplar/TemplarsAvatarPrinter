@@ -135,7 +135,7 @@ public class PrinterCPU : MonoBehaviour
         switch (XYZSyncSpeedSetting)
         {
             case XYZSyncSpeed.NormalSpeedForVRChatMultiplayer: TimeBetweenXYZSync = 0.1f; break;//slow
-            case XYZSyncSpeed.FastSpeedForVRChatClientSide: TimeBetweenXYZSync = 0.03f; break;//med
+            case XYZSyncSpeed.FastSpeedForVRChatClientSide: TimeBetweenXYZSync = 0.04f; break;//med
             case XYZSyncSpeed.FastestSpeedForUnity: TimeBetweenXYZSync = 0f; break;//fast
             default: break;
         }
