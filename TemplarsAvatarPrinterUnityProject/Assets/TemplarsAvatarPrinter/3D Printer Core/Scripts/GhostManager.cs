@@ -27,11 +27,14 @@ public class GhostManager : MonoBehaviour
     [Tooltip("Remaining verts after Decimation and Resolution")][ReadOnlyInspector] public int TotalVertsInMeshArrayFinal;
     [Tooltip("Toggles the use of SkipBlackVertexColorsCutOff when calculating what verts to print")]
     public bool SkipBlackVertexColors = false;
-    [Tooltip("Sets every vert to HSV = White when calculating what verts to print [Calculated after SkipBlackVertexColors]")]
-    public bool ClampAllColorsToWhite = false;
     [Tooltip("Any HSV colors with a value lower than SkipBlackVertexColorsCutOff will be omitted")]
     [Range(0f, 1f)] public float SkipBlackVertexColorsCutOff = 0.1f;
-
+    [Tooltip("Sets every vert to HSV = DefaultColor when calculating what verts to print [Calculated after SkipBlackVertexColors]")]
+    public bool ClampAllColorsToDefaultColor = false;
+    [Tooltip("Color used if meshes do not contain any vertex coloring or if ClampAllColorsToDefaultColor is equal to true")]
+    public Color DefaultColor = Color.white;
+    public bool AdjustHueBasedOnYLevel = false;
+    public float AdjustHueBasedOnYLevelScale = 0.2f;
     [Header("Options (Unity preview focused)")]
     public Color GhostColor;
     public Color SelectedColor;
@@ -84,7 +87,7 @@ public class GhostManager : MonoBehaviour
         }
     }
     [ContextMenu("CalculatePrinterCommands")]
-    public void CalculatePrinterCommands()
+    public void CalculatePrinterCommands()//Logs position and vertex color data into PrinterMem.PrinterCommand
     {
         printerCommands.Clear();
         //Initalize Tuple, used to reduce the number of unneeded points while printing
@@ -95,14 +98,15 @@ public class GhostManager : MonoBehaviour
             {
                 var point = printItem.mesh.vertices[i];
                 
-                //Decimation calculation
+                //Random decimation calculation
                 bool ran1 = UnityEngine.Random.value > Decimation * printItem.LocalDecimation;
                 if (ran1) continue;
-
+                
                 if (SkipBlackVertexColors)
                 {
                     // vertexColor
-                    var vertexColorTemp = printItem.mesh.colors[i];
+                    var vertexColorTemp = DefaultColor;//Default to DefaultColor
+                    if (printItem.mesh.colors.Length != 0) vertexColorTemp = printItem.mesh.colors[i];
                     Vector3 vertexColorTemp2 = Vector3.one;
                     Color.RGBToHSV(vertexColorTemp, out vertexColorTemp2.x, out vertexColorTemp2.y, out vertexColorTemp2.z);//HSV = xyz, h=x, s=y, v=z
                     if(vertexColorTemp2.z < 0.1f)//Value is lower than 0.5f
@@ -113,23 +117,32 @@ public class GhostManager : MonoBehaviour
                 }
 
 
-                //Merge by distance calculation
+                //Merge by distance calculation [Meshes tend to double up on many vertecies so its best to keep this on]
                 Vector3 tuppos = PrinterUtils.LocalToWorldPos(point, printItem.transform);
                 var tup = new Tuple<int, int, int>(Mathf.RoundToInt(tuppos.x * Resolution), Mathf.RoundToInt(tuppos.y * Resolution), Mathf.RoundToInt(tuppos.z * Resolution));
                 if (sceenpoints.Contains(tup)) continue;
                 sceenpoints.Add(tup);
-                
-                 // vertexColor
-                 var vertexColor = printItem.mesh.colors[i];
+
+                // Add vertexColor
+                var vertexColor = DefaultColor;//Default to DefaultColor
+                if (printItem.mesh.colors.Length != 0) vertexColor = printItem.mesh.colors[i];
                  Vector3 vertexColorHSV = Vector3.one;
-                if (!ClampAllColorsToWhite)//Setting that makes color data clamped to White
+                if (!ClampAllColorsToDefaultColor)//Setting that makes color data clamped to White
                 {
                     Color.RGBToHSV(vertexColor, out vertexColorHSV.x, out vertexColorHSV.y, out vertexColorHSV.z);//HSV = xyz, h=x, s=y, v=z
                 }
                 else
                 {
-                    Color.RGBToHSV(Color.white, out vertexColorHSV.x, out vertexColorHSV.y, out vertexColorHSV.z);//HSV = xyz, h=x, s=y, v=z
+                    Color.RGBToHSV(DefaultColor, out vertexColorHSV.x, out vertexColorHSV.y, out vertexColorHSV.z);//HSV = xyz, h=x, s=y, v=z
                 }
+
+
+                if (AdjustHueBasedOnYLevel)// Add a Hue rotation based on the WorldYLevel, vertexColorHSV.x represents H in HSV
+                {
+                    vertexColorHSV.x = (vertexColorHSV.x + (tuppos.y * AdjustHueBasedOnYLevelScale)) % 1;
+
+                }
+
                 // Add finalized printer command
                 printerCommands.Add(new PrinterMem.PrinterCommand(tuppos, printerCommands.Count, vertexColorHSV));
                 
