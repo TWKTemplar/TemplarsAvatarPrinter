@@ -653,7 +653,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: adcc3a3b399ca3d489868597c7f2a56a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  orderType: 2
+  orderType: 1
   ghostManager: {fileID: 2119656930}
   printerCPU: {fileID: 2119656927}
   printSequenceManager: {fileID: 2119656931}
@@ -673,7 +673,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   AutoLoop: 1
   NumberOfPrints: 1
-  TimelapSettings: 0
+  TimelapSettings: 1
   PointsTillScreenshot: 50
   XYZSyncSpeedSetting: 1
   TimeBetweenXYZSync: 0.04
